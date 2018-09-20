@@ -4,8 +4,8 @@ from ..items import ProductionItem
 
 class AmazonSpider(scrapy.Spider):
     name = "amazon"
-    allowed_domains = ['amazon.com']
-    host = "http://www.amazon.com/"
+    allowed_domains = ['amazon.cn']
+    host = "http://www.amazon.cn"
     view_search_items = "/s/field-keywords={search_name}"
     view_search_items_page = "/s/field-keywords={search_name}&page={page_index}"
 
@@ -55,16 +55,21 @@ class AmazonSpider(scrapy.Spider):
         ).extract()
         for url in items_url_list:
             # self.log("item {url}".format(url=url))
-            yield scrapy.Request(
-                url=url,
-                callback=self.parse_item_detail
-            )
+            if not url.startswith("/s?"):
+                yield scrapy.Request(
+                    url=url,
+                    callback=self.parse_item_detail
+                )
 
     def parse_item_detail(self, response):
         product_title = response.css("span#productTitle::text").extract_first()
         product_price = response.css("span#priceblock_ourprice::text").extract_first()
         product_availability = response.css("div#availability span::text").extract_first()
-        product_image = response.css("div#imgTagWrapperId img::attr(src)").extract_first()
+        product_image = response.css("div#main-image-container "
+                                     "li.item span.a-list-item "
+                                     "span.a-declarative "
+                                     "div#imgTagWrapperId "
+                                     "img::attr(src)").extract_first()
         production = ProductionItem()
         production["name"] = product_title.strip() if product_title else "no name"
         production["image_url"] = product_image

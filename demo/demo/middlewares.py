@@ -81,6 +81,25 @@ class DemoDownloaderMiddleware(object):
         return None
 
     def process_response(self, request, response, spider):
+        spider.logger.info("test")
+            # return response  # only solve requests that are marked with meta key
+        # catpcha = find_catpcha(response)
+        # if not captcha:  # it might not have captcha at all!
+        #     return response
+        # solved = solve_captcha(captcha)
+        # if solved:
+        #     response.meta['catpcha'] = captcha
+        #     response.meta['solved_catpcha'] = solved
+        #     return response
+        # else:
+        #     # retry page for new captcha
+        #     # prevent endless loop
+        #     if request.meta.get('catpcha_retries', 0) == 5:
+        #         logging.warning('max retries for captcha reached for {}'.format(request.url))
+        #         raise IgnoreRequest
+        #     request.meta['dont_filter'] = True
+        #     request.meta['captcha_retries'] = request.meta.get('captcha_retries', 0) + 1
+        #     return request
         # Called with the response returned from the downloader.
 
         # Must either;
