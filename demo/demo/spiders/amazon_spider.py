@@ -44,9 +44,14 @@ class AmazonSpider(scrapy.Spider):
                                    )
             yield scrapy.Request(
                 url=item_search_page_url,
-                callback=self.parse_item_list)
+                callback=self.parse_item_list,
+                meta={
+                    "search_name": search_name
+                }
+            )
 
     def parse_item_list(self, response):
+        search_name = response.request.meta["search_name"]
         items_url_list = response.css(
             "div#atfResults "
             "ul#s-results-list-atf "
@@ -58,10 +63,14 @@ class AmazonSpider(scrapy.Spider):
             if not url.startswith("/s?"):
                 yield scrapy.Request(
                     url=url,
-                    callback=self.parse_item_detail
+                    callback=self.parse_item_detail,
+                    meta={
+                        "search_name": search_name
+                    }
                 )
 
     def parse_item_detail(self, response):
+        search_name = response.request.meta["search_name"]
         product_title = response.css("span#productTitle::text").extract_first()
         product_price = response.css("span#priceblock_ourprice::text").extract_first()
         product_availability = response.css("div#availability span::text").extract_first()
@@ -69,8 +78,9 @@ class AmazonSpider(scrapy.Spider):
                                      "li.item span.a-list-item "
                                      "span.a-declarative "
                                      "div#imgTagWrapperId "
-                                     "img::attr(src)").extract_first()
+                                     "img::attr(data-old-hires)").extract_first()
         production = ProductionItem()
+        production["keywords"] = search_name
         production["name"] = product_title.strip() if product_title else "no name"
         production["image_url"] = product_image
         production["price"] = product_price

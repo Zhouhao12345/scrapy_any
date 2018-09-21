@@ -23,4 +23,5 @@ class ProductionItem(scrapy.Item):
     image_url = scrapy.Field()
     price = scrapy.Field()
     status = scrapy.Field()
+    keywords = scrapy.Field()
     pass
